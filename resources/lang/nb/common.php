@@ -18,7 +18,7 @@ return [
     'name' => 'Navn',
     'description' => 'Beskrivelse',
     'role' => 'Rolle',
-    'cover_image' => 'Bokomslag',
+    'cover_image' => 'Forside',
     'cover_image_description' => 'Bildet bør være ca. 440x250px.',
 
     // Actions
@@ -71,6 +71,10 @@ return [
     'list_view' => 'Listevisning',
     'default' => 'Standard',
     'breadcrumb' => 'Brødsmuler',
+    'status' => 'Status',
+    'status_active' => 'Active',
+    'status_inactive' => 'Inactive',
+    'never' => 'Never',
 
     // Header
     'header_menu_expand' => 'Utvid toppmeny',

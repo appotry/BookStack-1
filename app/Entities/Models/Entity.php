@@ -14,6 +14,7 @@ use BookStack\Entities\Tools\SlugGenerator;
 use BookStack\Facades\Permissions;
 use BookStack\Interfaces\Deletable;
 use BookStack\Interfaces\Favouritable;
+use BookStack\Interfaces\Loggable;
 use BookStack\Interfaces\Sluggable;
 use BookStack\Interfaces\Viewable;
 use BookStack\Model;
@@ -35,6 +36,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string     $slug
  * @property Carbon     $created_at
  * @property Carbon     $updated_at
+ * @property Carbon     $deleted_at
  * @property int        $created_by
  * @property int        $updated_by
  * @property bool       $restricted
@@ -45,7 +47,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder withLastView()
  * @method static Builder withViewCount()
  */
-abstract class Entity extends Model implements Sluggable, Favouritable, Viewable, Deletable
+abstract class Entity extends Model implements Sluggable, Favouritable, Viewable, Deletable, Loggable
 {
     use SoftDeletes;
     use HasCreatorAndUpdater;
@@ -121,11 +123,11 @@ abstract class Entity extends Model implements Sluggable, Favouritable, Viewable
             return true;
         }
 
-        if (($entity->isA('chapter') || $entity->isA('page')) && $this->isA('book')) {
+        if (($entity instanceof BookChild) && $this instanceof Book) {
             return $entity->book_id === $this->id;
         }
 
-        if ($entity->isA('page') && $this->isA('chapter')) {
+        if ($entity instanceof Page && $this instanceof Chapter) {
             return $entity->chapter_id === $this->id;
         }
 
@@ -211,6 +213,7 @@ abstract class Entity extends Model implements Sluggable, Favouritable, Viewable
     /**
      * Check if this instance or class is a certain type of entity.
      * Examples of $type are 'page', 'book', 'chapter'.
+     *
      * @deprecated Use instanceof instead.
      */
     public static function isA(string $type): bool
@@ -319,5 +322,13 @@ abstract class Entity extends Model implements Sluggable, Favouritable, Viewable
         return $this->favourites()
             ->where('user_id', '=', user()->id)
             ->exists();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function logDescriptor(): string
+    {
+        return "({$this->id}) {$this->name}";
     }
 }

@@ -174,7 +174,7 @@ return [
     'users_role' => 'ユーザーの役割',
     'users_role_desc' => 'このユーザーに割り当てる役割を選択します。ユーザーが複数の役割に割り当てられている場合は、それらの役割の権限が重ね合わされ、割り当てられた役割のすべての権限が与えられます。',
     'users_password' => 'ユーザー パスワード',
-    'users_password_desc' => 'アプリケーションへのログインに使用するパスワードを設定します。これは少なくとも6文字以上である必要があります。',
+    'users_password_desc' => 'Set a password used to log-in to the application. This must be at least 8 characters long.',
     'users_send_invite_text' => 'このユーザーに招待メールを送信してユーザー自身にパスワードを設定してもらうか、あなたがここでパスワードを設定するかを選択できます。',
     'users_send_invite_option' => 'ユーザーに招待メールを送信',
     'users_external_auth_id' => '外部認証ID',
@@ -232,6 +232,34 @@ return [
     'user_api_token_delete_warning' => 'これにより、このAPIトークン「:tokenName」がシステムから完全に削除されます。',
     'user_api_token_delete_confirm' => 'このAPIトークンを削除してもよろしいですか？',
     'user_api_token_delete_success' => 'APIトークンが正常に削除されました',
+
+    // Webhooks
+    'webhooks' => 'Webhook',
+    'webhooks_create' => 'Webhookを作成',
+    'webhooks_none_created' => 'Webhookはまだ作成されていません。',
+    'webhooks_edit' => 'Webhookを編集',
+    'webhooks_save' => 'Webhookを保存',
+    'webhooks_details' => 'Webhookの詳細',
+    'webhooks_details_desc' => 'ユーザーフレンドリーな名前とWebhookデータの送信先にするPOSTエンドポイントを指定します。',
+    'webhooks_events' => 'Webhookのイベント',
+    'webhooks_events_desc' => 'このWebhookの呼び出しをトリガーするすべてのイベントを選択します。',
+    'webhooks_events_warning' => 'これらのイベントはカスタム権限が適用されている場合でも、選択したすべてのイベントに対してトリガーされることに注意してください。このWebhookの利用により機密コンテンツが公開されないことを確認してください。',
+    'webhooks_events_all' => '全てのシステムイベント',
+    'webhooks_name' => 'Webhook名',
+    'webhooks_timeout' => 'Webhookリクエストタイムアウト (秒)',
+    'webhooks_endpoint' => 'Webhookエンドポイント',
+    'webhooks_active' => '有効なWebhook',
+    'webhook_events_table_header' => 'イベント',
+    'webhooks_delete' => 'Webhookを削除',
+    'webhooks_delete_warning' => 'これにより、このWebhook「:webhookName」がシステムから完全に削除されます。',
+    'webhooks_delete_confirm' => 'このWebhookを削除してよろしいですか？',
+    'webhooks_format_example' => 'Webhookのフォーマット例',
+    'webhooks_format_example_desc' => 'Webhookのデータは、設定されたエンドポイントにPOSTリクエストにより以下のフォーマットのJSONで送信されます。related_item と url プロパティはオプションであり、トリガーされるイベントの種類によって異なります。',
+    'webhooks_status' => 'Webhookの状態',
+    'webhooks_last_called' => '最後の実行:',
+    'webhooks_last_errored' => '最後のエラー:',
+    'webhooks_last_error_message' => '最後のエラーのメッセージ:',
+
 
     //! If editing translations files directly please ignore this in all
     //! languages apart from en. Content will be auto-copied from en.

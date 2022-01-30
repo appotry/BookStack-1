@@ -69,9 +69,10 @@ class PageRepo
      */
     public function getByOldSlug(string $bookSlug, string $pageSlug): ?Page
     {
+        /** @var ?PageRevision $revision */
         $revision = PageRevision::query()
             ->whereHas('page', function (Builder $query) {
-                $query->visible();
+                $query->scopes('visible');
             })
             ->where('slug', '=', $pageSlug)
             ->where('type', '=', 'version')
@@ -80,7 +81,7 @@ class PageRepo
             ->with('page')
             ->first();
 
-        return $revision ? $revision->page : null;
+        return $revision->page ?? null;
     }
 
     /**
@@ -170,7 +171,7 @@ class PageRepo
         $draft->indexForSearch();
         $draft->refresh();
 
-        Activity::addForEntity($draft, ActivityType::PAGE_CREATE);
+        Activity::add(ActivityType::PAGE_CREATE, $draft);
 
         return $draft;
     }
@@ -204,7 +205,7 @@ class PageRepo
             $this->savePageRevision($page, $summary);
         }
 
-        Activity::addForEntity($page, ActivityType::PAGE_UPDATE);
+        Activity::add(ActivityType::PAGE_UPDATE, $page);
 
         return $page;
     }
@@ -280,7 +281,7 @@ class PageRepo
     {
         $trashCan = new TrashCan();
         $trashCan->softDestroyPage($page);
-        Activity::addForEntity($page, ActivityType::PAGE_DELETE);
+        Activity::add(ActivityType::PAGE_DELETE, $page);
         $trashCan->autoClearOld();
     }
 
@@ -311,7 +312,7 @@ class PageRepo
         $summary = trans('entities.pages_revision_restored_from', ['id' => strval($revisionId), 'summary' => $revision->summary]);
         $this->savePageRevision($page, $summary);
 
-        Activity::addForEntity($page, ActivityType::PAGE_RESTORE);
+        Activity::add(ActivityType::PAGE_RESTORE, $page);
 
         return $page;
     }
@@ -327,7 +328,7 @@ class PageRepo
     public function move(Page $page, string $parentIdentifier): Entity
     {
         $parent = $this->findParentByIdentifier($parentIdentifier);
-        if ($parent === null) {
+        if (is_null($parent)) {
             throw new MoveOperationException('Book or chapter to move page into not found');
         }
 
@@ -340,56 +341,19 @@ class PageRepo
         $page->changeBook($newBookId);
         $page->rebuildPermissions();
 
-        Activity::addForEntity($page, ActivityType::PAGE_MOVE);
+        Activity::add(ActivityType::PAGE_MOVE, $page);
 
         return $parent;
     }
 
     /**
-     * Copy an existing page in the system.
-     * Optionally providing a new parent via string identifier and a new name.
-     *
-     * @throws MoveOperationException
-     * @throws PermissionsException
-     */
-    public function copy(Page $page, string $parentIdentifier = null, string $newName = null): Page
-    {
-        $parent = $parentIdentifier ? $this->findParentByIdentifier($parentIdentifier) : $page->getParent();
-        if ($parent === null) {
-            throw new MoveOperationException('Book or chapter to move page into not found');
-        }
-
-        if (!userCan('page-create', $parent)) {
-            throw new PermissionsException('User does not have permission to create a page within the new parent');
-        }
-
-        $copyPage = $this->getNewDraftPage($parent);
-        $pageData = $page->getAttributes();
-
-        // Update name
-        if (!empty($newName)) {
-            $pageData['name'] = $newName;
-        }
-
-        // Copy tags from previous page if set
-        if ($page->tags) {
-            $pageData['tags'] = [];
-            foreach ($page->tags as $tag) {
-                $pageData['tags'][] = ['name' => $tag->name, 'value' => $tag->value];
-            }
-        }
-
-        return $this->publishDraft($copyPage, $pageData);
-    }
-
-    /**
-     * Find a page parent entity via a identifier string in the format:
+     * Find a page parent entity via an identifier string in the format:
      * {type}:{id}
      * Example: (book:5).
      *
      * @throws MoveOperationException
      */
-    protected function findParentByIdentifier(string $identifier): ?Entity
+    public function findParentByIdentifier(string $identifier): ?Entity
     {
         $stringExploded = explode(':', $identifier);
         $entityType = $stringExploded[0];

@@ -3,11 +3,14 @@
 namespace Tests\User;
 
 use BookStack\Actions\ActivityType;
+use BookStack\Auth\Access\UserInviteService;
 use BookStack\Auth\Role;
 use BookStack\Auth\User;
 use BookStack\Entities\Models\Page;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Mockery\MockInterface;
+use RuntimeException;
 use Tests\TestCase;
 
 class UserManagementTest extends TestCase
@@ -130,6 +133,21 @@ class UserManagementTest extends TestCase
         $resp->assertSee('new_owner_id');
     }
 
+    public function test_migrate_option_hidden_if_user_cannot_manage_users()
+    {
+        $editor = $this->getEditor();
+
+        $resp = $this->asEditor()->get("settings/users/{$editor->id}/delete");
+        $resp->assertDontSee('Migrate Ownership');
+        $resp->assertDontSee('new_owner_id');
+
+        $this->giveUserPermissions($editor, ['users-manage']);
+
+        $resp = $this->asEditor()->get("settings/users/{$editor->id}/delete");
+        $resp->assertSee('Migrate Ownership');
+        $resp->assertSee('new_owner_id');
+    }
+
     public function test_delete_with_new_owner_id_changes_ownership()
     {
         $page = Page::query()->first();
@@ -163,5 +181,47 @@ class UserManagementTest extends TestCase
         $resp->assertRedirect('/settings/users/' . $guestUser->id);
         $resp = $this->followRedirects($resp);
         $resp->assertSee('cannot delete the guest user');
+    }
+
+    public function test_user_creation_is_not_performed_if_the_invitation_sending_fails()
+    {
+        /** @var User $user */
+        $user = User::factory()->make();
+        $adminRole = Role::getRole('admin');
+
+        // Simulate an invitation sending failure
+        $this->mock(UserInviteService::class, function (MockInterface $mock) {
+            $mock->shouldReceive('sendInvitation')->once()->andThrow(RuntimeException::class);
+        });
+
+        $this->asAdmin()->post('/settings/users/create', [
+            'name'                          => $user->name,
+            'email'                         => $user->email,
+            'send_invite'                   => 'true',
+            'roles[' . $adminRole->id . ']' => 'true',
+        ]);
+
+        // Since the invitation failed, the user should not exist in the database
+        $this->assertDatabaseMissing('users', $user->only('name', 'email'));
+    }
+
+    public function test_user_create_activity_is_not_persisted_if_the_invitation_sending_fails()
+    {
+        /** @var User $user */
+        $user = User::factory()->make();
+        $adminRole = Role::getRole('admin');
+
+        $this->mock(UserInviteService::class, function (MockInterface $mock) {
+            $mock->shouldReceive('sendInvitation')->once()->andThrow(RuntimeException::class);
+        });
+
+        $this->asAdmin()->post('/settings/users/create', [
+            'name'                          => $user->name,
+            'email'                         => $user->email,
+            'send_invite'                   => 'true',
+            'roles[' . $adminRole->id . ']' => 'true',
+        ]);
+
+        $this->assertDatabaseMissing('activities', ['type' => 'USER_CREATE']);
     }
 }

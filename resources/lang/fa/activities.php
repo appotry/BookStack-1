@@ -48,8 +48,16 @@ return [
     'favourite_remove_notification' => '":name" از علاقه مندی های شما حذف شد',
 
     // MFA
-    'mfa_setup_method_notification' => 'Multi-factor method successfully configured',
-    'mfa_remove_method_notification' => 'Multi-factor method successfully removed',
+    'mfa_setup_method_notification' => 'روش چند فاکتوری با موفقیت پیکربندی شد',
+    'mfa_remove_method_notification' => 'روش چند فاکتوری با موفقیت حذف شد',
+
+    // Webhooks
+    'webhook_create' => 'ایجاد وب هوک',
+    'webhook_create_notification' => 'وب هوک با موفقیت ایجاد شد',
+    'webhook_update' => 'به روزرسانی وب هوک',
+    'webhook_update_notification' => 'وب هوک با موفقیت بروزرسانی شد',
+    'webhook_delete' => 'حذف وب هوک',
+    'webhook_delete_notification' => 'وب هوک با موفقیت حذف شد',
 
     // Other
     'commented_on'                => 'ثبت دیدگاه',

@@ -112,6 +112,11 @@ class MarkdownEditor {
         if (scrollText) {
             this.scrollToText(scrollText);
         }
+
+        // Refresh CodeMirror on container resize
+        const resizeDebounced = debounce(() => code.updateLayout(this.cm), 100, false);
+        const observer = new ResizeObserver(resizeDebounced);
+        observer.observe(this.elem);
     }
 
     // Update the input content and render the display.
@@ -395,8 +400,9 @@ class MarkdownEditor {
     actionInsertImage() {
         const cursorPos = this.cm.getCursor('from');
         window.ImageManager.show(image => {
+            const imageUrl = image.thumbs.display || image.url;
             let selectedText = this.cm.getSelection();
-            let newText = "[![" + (selectedText || image.name) + "](" + image.thumbs.display + ")](" + image.url + ")";
+            let newText = "[![" + (selectedText || image.name) + "](" + imageUrl + ")](" + image.url + ")";
             this.cm.focus();
             this.cm.replaceSelection(newText);
             this.cm.setCursor(cursorPos.line, cursorPos.ch + newText.length);

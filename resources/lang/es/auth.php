@@ -21,7 +21,7 @@ return [
     'email' => 'Correo electrónico',
     'password' => 'Contraseña',
     'password_confirm' => 'Confirmar Contraseña',
-    'password_hint' => 'Debe contener más de 7 caracteres',
+    'password_hint' => 'Debe contener al menos 8 caracteres',
     'forgot_password' => '¿Contraseña Olvidada?',
     'remember_me' => 'Recordarme',
     'ldap_email_hint' => 'Por favor introduzca un mail para utilizar con esta cuenta.',
@@ -64,7 +64,7 @@ return [
     'email_not_confirmed_resend_button' => 'Reenviar Correo Electrónico de confirmación',
 
     // User Invite
-    'user_invite_email_subject' => 'As sido invitado a unirte a :appName!',
+    'user_invite_email_subject' => 'Has sido invitado a unirte a :appName!',
     'user_invite_email_greeting' => 'Se ha creado una cuenta para usted en :appName.',
     'user_invite_email_text' => 'Clica en el botón a continuación para ajustar una contraseña y poder acceder:',
     'user_invite_email_action' => 'Ajustar la Contraseña de la Cuenta',

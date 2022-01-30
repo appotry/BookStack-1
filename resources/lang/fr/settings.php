@@ -174,7 +174,7 @@ return [
     'users_role' => 'Rôles de l\'utilisateur',
     'users_role_desc' => 'Sélectionnez les rôles auxquels cet utilisateur sera affecté. Si un utilisateur est affecté à plusieurs rôles, les permissions de ces rôles s\'empileront et ils recevront toutes les capacités des rôles affectés.',
     'users_password' => 'Mot de passe de l\'utilisateur',
-    'users_password_desc' => 'Définissez un mot de passe utilisé pour vous connecter à l\'application. Il doit comporter au moins 6 caractères.',
+    'users_password_desc' => 'Définissez un mot de passe pour vous connecter à l\'application. Il doit comporter au moins 8 caractères.',
     'users_send_invite_text' => 'Vous pouvez choisir d\'envoyer à cet utilisateur un e-mail d\'invitation qui lui permet de définir son propre mot de passe, sinon vous pouvez définir son mot de passe vous-même.',
     'users_send_invite_option' => 'Envoyer l\'e-mail d\'invitation',
     'users_external_auth_id' => 'Identifiant d\'authentification externe',
@@ -232,6 +232,34 @@ return [
     'user_api_token_delete_warning' => 'Cela supprimera complètement le jeton d\'API avec le nom \':tokenName\'.',
     'user_api_token_delete_confirm' => 'Souhaitez-vous vraiment effacer ce jeton API ?',
     'user_api_token_delete_success' => 'Le jeton API a été supprimé avec succès',
+
+    // Webhooks
+    'webhooks' => 'Webhooks',
+    'webhooks_create' => 'Créer un nouveau Webhook',
+    'webhooks_none_created' => 'Aucun webhook n\'a encore été créé.',
+    'webhooks_edit' => 'Éditer le Webhook',
+    'webhooks_save' => 'Enregistrer le Webhook',
+    'webhooks_details' => 'Détails du Webhook',
+    'webhooks_details_desc' => 'Renseignez un nom ainsi que votre endpoint POST sur lequel les données du webhook doivent être envoyées.',
+    'webhooks_events' => 'Événements du Webhook',
+    'webhooks_events_desc' => 'Sélectionnez tous les évènements qui doivent déclencher un appel sur ce webhook.',
+    'webhooks_events_warning' => 'Gardez à l\'esprit que ces événements seront déclenchés pour chaque événement sélectionné, même si des permissions personnalisées sont appliquées. Vérifiez bien que l\'utilisation de ce webhook n\'exposera pas de contenu confidentiel.',
+    'webhooks_events_all' => 'Tous les événements système',
+    'webhooks_name' => 'Nom du Webhook',
+    'webhooks_timeout' => 'Délai d\'expiration de requête du Webhook (en secondes)',
+    'webhooks_endpoint' => 'Point de terminaison du Webhook',
+    'webhooks_active' => 'Webhook actif',
+    'webhook_events_table_header' => 'Événements',
+    'webhooks_delete' => 'Supprimer le Webhook',
+    'webhooks_delete_warning' => 'Ceci supprimera complètement du système le webhook ayant le nom \':webhookName\'.',
+    'webhooks_delete_confirm' => 'Êtes-vous sûr(e) de vouloir supprimer ce webhook ?',
+    'webhooks_format_example' => 'Exemple de Format de Webhook',
+    'webhooks_format_example_desc' => 'Les données du webhook sont envoyées dans une requête POST vers l\'endpoint au format JSON respectant le format ci-dessous. Les propriétés "related_item" et "url" sont optionnelles et dépendront du type d\'événement déclenché.',
+    'webhooks_status' => 'Statut du webhook',
+    'webhooks_last_called' => 'Dernier appel :',
+    'webhooks_last_errored' => 'Dernier en erreur :',
+    'webhooks_last_error_message' => 'Dernier message d\'erreur : ',
+
 
     //! If editing translations files directly please ignore this in all
     //! languages apart from en. Content will be auto-copied from en.

@@ -39,14 +39,14 @@ return [
     'reset' => 'Сбросить',
     'remove' => 'Удалить',
     'add' => 'Добавить',
-    'configure' => 'Configure',
+    'configure' => 'Настройка',
     'fullscreen' => 'На весь экран',
     'favourite' => 'Избранное',
     'unfavourite' => 'Убрать из избранного',
     'next' => 'Следующая',
     'previous' => 'Предыдущая',
-    'filter_active' => 'Active Filter:',
-    'filter_clear' => 'Clear Filter',
+    'filter_active' => 'Активный фильтр:',
+    'filter_clear' => 'Сбросить фильтр',
 
     // Sort Options
     'sort_options' => 'Параметры сортировки',
@@ -71,6 +71,10 @@ return [
     'list_view' => 'Вид списком',
     'default' => 'По умолчанию',
     'breadcrumb' => 'Навигация',
+    'status' => 'Состояние',
+    'status_active' => 'Активен',
+    'status_inactive' => 'Неактивен',
+    'never' => 'Никогда',
 
     // Header
     'header_menu_expand' => 'Развернуть меню заголовка',

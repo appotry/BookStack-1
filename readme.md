@@ -34,13 +34,20 @@ Big thanks to these companies for supporting the project.
 Note: Listed services are not tested, vetted nor supported by the official BookStack project in any manner.
 [View all sponsors](https://github.com/sponsors/ssddanbrown).
 
-#### Bronze Sponsors
+#### Silver Sponsors
 
 <table><tbody><tr>
 <td><a href="https://www.diagrams.net/" target="_blank">
-    <img width="280" src="https://media.githubusercontent.com/media/BookStackApp/website/main/static/images/sponsors/diagramsnet.png" alt="Diagrams.net">
+    <img width="400" src="https://media.githubusercontent.com/media/BookStackApp/website/main/static/images/sponsors/diagramsnet.png" alt="Diagrams.net">
 </a></td>
+<td><a href="https://cloudabove.com/hosting" target="_blank">
+    <img height="100" src="https://raw.githubusercontent.com/BookStackApp/website/main/static/images/sponsors/cloudabove.svg" alt="Cloudabove">
+</a></td>
+</tr></tbody></table>
 
+#### Bronze Sponsor
+
+<table><tbody><tr>
 <td><a href="https://www.stellarhosted.com/bookstack/" target="_blank">
     <img width="280" src="https://media.githubusercontent.com/media/BookStackApp/website/main/static/images/sponsors/stellarhosted.png" alt="Stellar Hosted">
 </a></td>
@@ -151,6 +158,11 @@ Once the database has been migrated & seeded, you can run the tests like so:
  ```bash
 docker-compose run app php vendor/bin/phpunit
 ```
+
+#### Debugging
+
+The docker-compose setup ships with Xdebug, which you can listen to on port 9090.
+NB : For some editors like Visual Studio Code, you might need to map your workspace folder to the /app folder within the docker container for this to work.
 
 ## 🌎 Translations
 

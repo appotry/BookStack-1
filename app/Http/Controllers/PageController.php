@@ -6,6 +6,7 @@ use BookStack\Actions\View;
 use BookStack\Entities\Models\Page;
 use BookStack\Entities\Repos\PageRepo;
 use BookStack\Entities\Tools\BookContents;
+use BookStack\Entities\Tools\Cloner;
 use BookStack\Entities\Tools\NextPreviousContentLocator;
 use BookStack\Entities\Tools\PageContent;
 use BookStack\Entities\Tools\PageEditActivity;
@@ -13,6 +14,7 @@ use BookStack\Entities\Tools\PermissionsUpdater;
 use BookStack\Exceptions\NotFoundException;
 use BookStack\Exceptions\PermissionsException;
 use Exception;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Throwable;
@@ -363,13 +365,22 @@ class PageController extends Controller
      */
     public function showRecentlyUpdated()
     {
-        $pages = Page::visible()->orderBy('updated_at', 'desc')
+        $visibleBelongsScope = function (BelongsTo $query) {
+            $query->scopes('visible');
+        };
+
+        $pages = Page::visible()->with(['updatedBy', 'book' => $visibleBelongsScope, 'chapter' => $visibleBelongsScope])
+            ->orderBy('updated_at', 'desc')
             ->paginate(20)
             ->setPath(url('/pages/recently-updated'));
 
+        $this->setPageTitle(trans('entities.recently_updated_pages'));
+
         return view('common.detailed-listing-paginated', [
-            'title'    => trans('entities.recently_updated_pages'),
-            'entities' => $pages,
+            'title'         => trans('entities.recently_updated_pages'),
+            'entities'      => $pages,
+            'showUpdatedBy' => true,
+            'showPath'      => true,
         ]);
     }
 
@@ -409,11 +420,9 @@ class PageController extends Controller
 
         try {
             $parent = $this->pageRepo->move($page, $entitySelection);
+        } catch (PermissionsException $exception) {
+            $this->showPermissionError();
         } catch (Exception $exception) {
-            if ($exception instanceof PermissionsException) {
-                $this->showPermissionError();
-            }
-
             $this->showErrorNotification(trans('errors.selected_book_chapter_not_found'));
 
             return redirect()->back();
@@ -447,26 +456,24 @@ class PageController extends Controller
      * @throws NotFoundException
      * @throws Throwable
      */
-    public function copy(Request $request, string $bookSlug, string $pageSlug)
+    public function copy(Request $request, Cloner $cloner, string $bookSlug, string $pageSlug)
     {
         $page = $this->pageRepo->getBySlug($bookSlug, $pageSlug);
         $this->checkOwnablePermission('page-view', $page);
 
-        $entitySelection = $request->get('entity_selection', null) ?? null;
-        $newName = $request->get('name', null);
+        $entitySelection = $request->get('entity_selection') ?: null;
+        $newParent = $entitySelection ? $this->pageRepo->findParentByIdentifier($entitySelection) : $page->getParent();
 
-        try {
-            $pageCopy = $this->pageRepo->copy($page, $entitySelection, $newName);
-        } catch (Exception $exception) {
-            if ($exception instanceof PermissionsException) {
-                $this->showPermissionError();
-            }
-
+        if (is_null($newParent)) {
             $this->showErrorNotification(trans('errors.selected_book_chapter_not_found'));
 
             return redirect()->back();
         }
 
+        $this->checkOwnablePermission('page-create', $newParent);
+
+        $newName = $request->get('name') ?: $page->name;
+        $pageCopy = $cloner->clonePage($page, $newParent, $newName);
         $this->showSuccessNotification(trans('entities.pages_copy_success'));
 
         return redirect($pageCopy->getUrl());

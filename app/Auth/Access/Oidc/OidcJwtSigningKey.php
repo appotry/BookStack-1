@@ -41,16 +41,18 @@ class OidcJwtSigningKey
     protected function loadFromPath(string $path)
     {
         try {
-            $this->key = PublicKeyLoader::load(
+            $key = PublicKeyLoader::load(
                 file_get_contents($path)
-            )->withPadding(RSA::SIGNATURE_PKCS1);
+            );
         } catch (\Exception $exception) {
             throw new OidcInvalidKeyException("Failed to load key from file path with error: {$exception->getMessage()}");
         }
 
-        if (!($this->key instanceof RSA)) {
+        if (!$key instanceof RSA) {
             throw new OidcInvalidKeyException('Key loaded from file path is not an RSA key as expected');
         }
+
+        $this->key = $key->withPadding(RSA::SIGNATURE_PKCS1);
     }
 
     /**
@@ -58,8 +60,11 @@ class OidcJwtSigningKey
      */
     protected function loadFromJwkArray(array $jwk)
     {
-        if ($jwk['alg'] !== 'RS256') {
-            throw new OidcInvalidKeyException("Only RS256 keys are currently supported. Found key using {$jwk['alg']}");
+        // 'alg' is optional for a JWK, but we will still attempt to validate if
+        // it exists otherwise presume it will be compatible.
+        $alg = $jwk['alg'] ?? null;
+        if ($jwk['kty'] !== 'RSA' || !(is_null($alg) || $alg === 'RS256')) {
+            throw new OidcInvalidKeyException("Only RS256 keys are currently supported. Found key using {$alg}");
         }
 
         if (empty($jwk['use'])) {
@@ -81,14 +86,19 @@ class OidcJwtSigningKey
         $n = strtr($jwk['n'] ?? '', '-_', '+/');
 
         try {
-            /** @var RSA $key */
-            $this->key = PublicKeyLoader::load([
+            $key = PublicKeyLoader::load([
                 'e' => new BigInteger(base64_decode($jwk['e']), 256),
                 'n' => new BigInteger(base64_decode($n), 256),
-            ])->withPadding(RSA::SIGNATURE_PKCS1);
+            ]);
         } catch (\Exception $exception) {
             throw new OidcInvalidKeyException("Failed to load key from JWK parameters with error: {$exception->getMessage()}");
         }
+
+        if (!$key instanceof RSA) {
+            throw new OidcInvalidKeyException('Key loaded from file path is not an RSA key as expected');
+        }
+
+        $this->key = $key->withPadding(RSA::SIGNATURE_PKCS1);
     }
 
     /**

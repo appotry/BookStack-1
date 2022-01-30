@@ -51,6 +51,14 @@ return [
     'mfa_setup_method_notification' => 'Viacúrovňový spôsob overenia úspešne nastavený',
     'mfa_remove_method_notification' => 'Viacúrovňový spôsob overenia úspešne odstránený',
 
+    // Webhooks
+    'webhook_create' => 'vytvoril(a) si webhook',
+    'webhook_create_notification' => 'Webhook úspešne vytvorený',
+    'webhook_update' => 'aktualizoval(a) si webhook',
+    'webhook_update_notification' => 'Webhook úspešne aktualizovaný',
+    'webhook_delete' => 'odstránil(a) si webhook',
+    'webhook_delete_notification' => 'Webhook úspešne odstránený',
+
     // Other
     'commented_on'                => 'komentoval(a)',
     'permissions_update'          => 'aktualizované oprávnenia',

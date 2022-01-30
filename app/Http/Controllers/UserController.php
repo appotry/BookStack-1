@@ -12,7 +12,9 @@ use BookStack\Exceptions\UserUpdateException;
 use BookStack\Uploads\ImageRepo;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
@@ -82,7 +84,7 @@ class UserController extends Controller
         $sendInvite = ($request->get('send_invite', 'false') === 'true');
 
         if ($authMethod === 'standard' && !$sendInvite) {
-            $validationRules['password'] = ['required', 'min:6'];
+            $validationRules['password'] = ['required', Password::default()];
             $validationRules['password-confirm'] = ['required', 'same:password'];
         } elseif ($authMethod === 'ldap' || $authMethod === 'saml2' || $authMethod === 'openid') {
             $validationRules['external_auth_id'] = ['required'];
@@ -98,20 +100,23 @@ class UserController extends Controller
         }
 
         $user->refreshSlug();
-        $user->save();
 
-        if ($sendInvite) {
-            $this->inviteService->sendInvitation($user);
-        }
+        DB::transaction(function () use ($user, $sendInvite, $request) {
+            $user->save();
 
-        if ($request->filled('roles')) {
-            $roles = $request->get('roles');
-            $this->userRepo->setUserRoles($user, $roles);
-        }
+            if ($sendInvite) {
+                $this->inviteService->sendInvitation($user);
+            }
 
-        $this->userRepo->downloadAndAssignUserAvatar($user);
+            if ($request->filled('roles')) {
+                $roles = $request->get('roles');
+                $this->userRepo->setUserRoles($user, $roles);
+            }
 
-        $this->logActivity(ActivityType::USER_CREATE, $user);
+            $this->userRepo->downloadAndAssignUserAvatar($user);
+
+            $this->logActivity(ActivityType::USER_CREATE, $user);
+        });
 
         return redirect('/settings/users');
     }
@@ -155,11 +160,11 @@ class UserController extends Controller
         $this->checkPermissionOrCurrentUser('users-manage', $id);
 
         $this->validate($request, [
-            'name'             => 'min:2',
+            'name'             => ['min:2'],
             'email'            => ['min:2', 'email', 'unique:users,email,' . $id],
-            'password'         => ['min:6', 'required_with:password_confirm'],
+            'password'         => ['required_with:password_confirm', Password::default()],
             'password-confirm' => ['same:password', 'required_with:password'],
-            'setting'          => 'array',
+            'setting'          => ['array'],
             'profile_image'    => array_merge(['nullable'], $this->getImageValidationRules()),
         ]);
 
